@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+build/
+dist/
+*.spec
+*配置.json
+.venv/
+venv/
+.idea/
+.vscode/
+Thumbs.db
+.DS_Store
