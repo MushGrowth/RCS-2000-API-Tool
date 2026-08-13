@@ -1,4 +1,13 @@
-# RCS-2000接口调用工具 V1.0 使用说明
+# RCS-2000接口调用工具 V1.1 使用说明
+
+## V1.1 新增
+
+- 接口定义迁移到 `interfaces/rcs-3.3.json` 和 `interfaces/rcs-4.x.json`，可独立校对和扩展。
+- RCS 4.x 补充交管区申请与释放、任务下发 `carrierSpeedScale` 字段。
+- 新增 V4 标准请求头、HMAC-SHA256/HMAC-SHA512 签名、连接/读取双超时和 TLS 校验开关。
+- 响应日志包含 HTTP 状态、响应头和原始正文。
+- 新增本地 HTTP 回调模拟服务，支持成功、失败、延时响应，请求历史和任务号关联。
+- 回调模拟器内置 V3 常用回调及 V4 八类 SPI 路径，同时接受自定义 POST 路径。
 
 ## 1. 工具简介
 
@@ -90,6 +99,7 @@ python -m PyInstaller --noconfirm --clean --onefile --windowed `
   --icon ".\assets\rcs2000-icon.ico" `
   --version-file ".\version_info.txt" `
   --add-data ".\assets\rcs2000-icon.ico;assets" `
+  --add-data ".\interfaces;interfaces" `
   rcs_api_call_tool.py
 ```
 

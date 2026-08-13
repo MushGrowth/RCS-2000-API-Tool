@@ -1,0 +1,702 @@
+{
+  "schema_version": 1,
+  "rcs_version": "4.x",
+  "interfaces": [
+    {
+      "display_name": "任务组接口",
+      "suffix": "api/robot/controller/task/group",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "groupCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "strategy",
+          "requirement": "必填"
+        },
+        {
+          "name": "targetRoute.type",
+          "requirement": "必填"
+        },
+        {
+          "name": "targetRoute.code",
+          "requirement": "必填"
+        },
+        {
+          "name": "data[0].robotTaskCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "data[0].sequence",
+          "requirement": "必填"
+        },
+        {
+          "name": "strategyValue",
+          "requirement": "条件必填"
+        },
+        {
+          "name": "groupSeq",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "任务下发接口",
+      "suffix": "api/robot/controller/task/submit",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "taskType",
+          "requirement": "必填"
+        },
+        {
+          "name": "targetRoute[0].type",
+          "requirement": "必填"
+        },
+        {
+          "name": "targetRoute[0].code",
+          "requirement": "必填"
+        },
+        {
+          "name": "targetRoute[0].operation",
+          "requirement": "选填"
+        },
+        {
+          "name": "targetRoute[0].robotType",
+          "requirement": "选填"
+        },
+        {
+          "name": "targetRoute[0].robotCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "targetRoute[0].extra",
+          "requirement": "选填"
+        },
+        {
+          "name": "initPriority",
+          "requirement": "选填"
+        },
+        {
+          "name": "deadline",
+          "requirement": "选填"
+        },
+        {
+          "name": "expectedStartTime",
+          "requirement": "选填"
+        },
+        {
+          "name": "robotType",
+          "requirement": "选填"
+        },
+        {
+          "name": "robotCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "interrupt",
+          "requirement": "选填"
+        },
+        {
+          "name": "robotTaskCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "groupCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "extra",
+          "requirement": "选填"
+        },
+        {
+          "name": "carrierSpeedScale",
+          "requirement": "选填-载具速度比例"
+        }
+      ]
+    },
+    {
+      "display_name": "任务继续执行接口",
+      "suffix": "api/robot/controller/task/extend/continue",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "triggerType",
+          "requirement": "必填"
+        },
+        {
+          "name": "triggerCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "targetRoute.type",
+          "requirement": "选填"
+        },
+        {
+          "name": "targetRoute.code",
+          "requirement": "选填"
+        },
+        {
+          "name": "targetRoute.operation",
+          "requirement": "选填"
+        },
+        {
+          "name": "targetRoute.robotType",
+          "requirement": "选填"
+        },
+        {
+          "name": "targetRoute.robotCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "targetRoute.extra",
+          "requirement": "选填"
+        },
+        {
+          "name": "extra",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "任务取消接口",
+      "suffix": "api/robot/controller/task/cancel",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "cancelType",
+          "requirement": "必填"
+        },
+        {
+          "name": "returnTaskType",
+          "requirement": "条件必填"
+        },
+        {
+          "name": "robotTaskCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "carrierCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "robotCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "reason",
+          "requirement": "选填"
+        },
+        {
+          "name": "targetRoute.type",
+          "requirement": "选填"
+        },
+        {
+          "name": "targetRoute.code",
+          "requirement": "选填"
+        },
+        {
+          "name": "extra",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "任务优先级设置接口",
+      "suffix": "api/robot/controller/task/priority",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "robotTaskCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "initPriority",
+          "requirement": "必填"
+        },
+        {
+          "name": "deadline",
+          "requirement": "选填"
+        },
+        {
+          "name": "extra",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "区域暂停与恢复机器人接口",
+      "suffix": "api/robot/controller/zone/pause",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "zoneCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "invoke",
+          "requirement": "必填"
+        },
+        {
+          "name": "mapCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "extra",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "区域归巢机器人接口",
+      "suffix": "api/robot/controller/zone/homing",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "autoShutdown",
+          "requirement": "必填"
+        },
+        {
+          "name": "bootTime",
+          "requirement": "条件必填"
+        },
+        {
+          "name": "mapCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "zoneCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "zoneCodes",
+          "requirement": "选填"
+        },
+        {
+          "name": "expireTime",
+          "requirement": "选填"
+        },
+        {
+          "name": "extra",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "区域驱离机器人接口",
+      "suffix": "api/robot/controller/zone/banish",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "zoneCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "zoneCodes",
+          "requirement": "选填"
+        },
+        {
+          "name": "targetZoneCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "pause",
+          "requirement": "选填"
+        },
+        {
+          "name": "report",
+          "requirement": "选填"
+        },
+        {
+          "name": "controlMode",
+          "requirement": "选填"
+        },
+        {
+          "name": "expireTime",
+          "requirement": "选填"
+        },
+        {
+          "name": "invoke",
+          "requirement": "选填"
+        },
+        {
+          "name": "extra",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "区域封锁与恢复接口",
+      "suffix": "api/robot/controller/zone/blockade",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "zoneCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "invoke",
+          "requirement": "必填"
+        },
+        {
+          "name": "mapCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "pause",
+          "requirement": "选填"
+        },
+        {
+          "name": "report",
+          "requirement": "选填"
+        },
+        {
+          "name": "disableSite",
+          "requirement": "选填"
+        },
+        {
+          "name": "enableSite",
+          "requirement": "选填"
+        },
+        {
+          "name": "extra",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "载具与站点绑定接口",
+      "suffix": "api/robot/controller/carrier/bind",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "carrierCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "siteCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "carrierDir",
+          "requirement": "选填"
+        },
+        {
+          "name": "extra",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "载具与站点解绑接口",
+      "suffix": "api/robot/controller/carrier/unbind",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "carrierCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "siteCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "extra",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "存储对象与搬运对象绑定解绑接口",
+      "suffix": "api/robot/controller/site/bind",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "invoke",
+          "requirement": "必填"
+        },
+        {
+          "name": "slotCategory",
+          "requirement": "条件必填"
+        },
+        {
+          "name": "slotCode",
+          "requirement": "条件必填"
+        },
+        {
+          "name": "carrierCategory",
+          "requirement": "选填"
+        },
+        {
+          "name": "carrierType",
+          "requirement": "选填"
+        },
+        {
+          "name": "carrierCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "carrierDir",
+          "requirement": "选填"
+        },
+        {
+          "name": "stackLabel",
+          "requirement": "选填"
+        },
+        {
+          "name": "colCount",
+          "requirement": "选填"
+        },
+        {
+          "name": "extra",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "载具禁用与启用",
+      "suffix": "api/robot/controller/carrier/lock",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "carrierCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "invoke",
+          "requirement": "必填"
+        }
+      ]
+    },
+    {
+      "display_name": "站点禁用与启用",
+      "suffix": "api/robot/controller/site/lock",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "siteCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "invoke",
+          "requirement": "必填"
+        }
+      ]
+    },
+    {
+      "display_name": "外设执行通知接口【返回0】",
+      "suffix": "spi/wcs/robot/eqpt/notify",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "eqptCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "taskCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "actionStatus",
+          "requirement": "必填"
+        },
+        {
+          "name": "siteCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "carrierInfo",
+          "requirement": "选填"
+        },
+        {
+          "name": "extra",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "预调度任务下发接口",
+      "suffix": "api/robot/controller/task/pretask",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "siteCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "nextTaskTime",
+          "requirement": "必填"
+        },
+        {
+          "name": "robotType",
+          "requirement": "选填"
+        },
+        {
+          "name": "priority",
+          "requirement": "选填"
+        },
+        {
+          "name": "taskCount",
+          "requirement": "选填"
+        },
+        {
+          "name": "capacityCount",
+          "requirement": "选填"
+        },
+        {
+          "name": "amrDir",
+          "requirement": "选填"
+        },
+        {
+          "name": "extra",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "查询任务状态接口",
+      "suffix": "api/robot/controller/task/query",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "robotTaskCode",
+          "requirement": "必填"
+        }
+      ]
+    },
+    {
+      "display_name": "查询机器人状态接口",
+      "suffix": "api/robot/controller/robot/query",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "singleRobotCode",
+          "requirement": "必填"
+        }
+      ]
+    },
+    {
+      "display_name": "查询载具状态接口",
+      "suffix": "api/robot/controller/carrier/query",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "carrierCode",
+          "requirement": "必填"
+        }
+      ]
+    },
+    {
+      "display_name": "物料绑定接口",
+      "suffix": "api/robot/controller/matlabel/bind",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "carrierCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "matLabel",
+          "requirement": "必填"
+        }
+      ]
+    },
+    {
+      "display_name": "物料解绑接口",
+      "suffix": "api/robot/controller/matlabel/unbind",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "carrierCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "matLabel",
+          "requirement": "必填"
+        }
+      ]
+    },
+    {
+      "display_name": "外设执行通知接口【返回SUCCESS】",
+      "suffix": "spi/wcs/robot/eqpt/notifyGbt",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "eqptCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "taskCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "actionStatus",
+          "requirement": "必填"
+        },
+        {
+          "name": "siteCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "carrierInfo",
+          "requirement": "选填"
+        },
+        {
+          "name": "extra",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "交管区申请与释放",
+      "suffix": "wcs/api/outer/rest/trafficTask",
+      "method": "POST",
+      "base_url": "root",
+      "fields": [
+        {
+          "name": "eqptCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "method",
+          "requirement": "必填-APPLY_RESOURCE申请/RELEASE_RESOURCE释放"
+        },
+        {
+          "name": "taskCode",
+          "requirement": "必填-申请和释放保持一致"
+        },
+        {
+          "name": "srcCode",
+          "requirement": "条件必填-申请时必填"
+        },
+        {
+          "name": "syncMode",
+          "requirement": "条件必填-申请时必填,0异步/1同步"
+        },
+        {
+          "name": "robotCode",
+          "requirement": "选填"
+        }
+      ],
+      "rules": [
+        {
+          "type": "required_if",
+          "field": "srcCode",
+          "when": {
+            "field": "method",
+            "equals": "APPLY_RESOURCE"
+          }
+        },
+        {
+          "type": "required_if",
+          "field": "syncMode",
+          "when": {
+            "field": "method",
+            "equals": "APPLY_RESOURCE"
+          }
+        }
+      ]
+    }
+  ]
+}

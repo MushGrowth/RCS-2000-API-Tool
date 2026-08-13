@@ -1,7 +1,7 @@
 VSVersionInfo(
   ffi=FixedFileInfo(
-    filevers=(1, 0, 0, 0),
-    prodvers=(1, 0, 0, 0),
+    filevers=(1, 1, 0, 0),
+    prodvers=(1, 1, 0, 0),
     mask=0x3f,
     flags=0x0,
     OS=0x40004,
@@ -16,11 +16,11 @@ VSVersionInfo(
         [
           StringStruct('CompanyName', 'RCS-2000'),
           StringStruct('FileDescription', 'RCS-2000接口调用工具'),
-          StringStruct('FileVersion', '1.0.0.0'),
+          StringStruct('FileVersion', '1.1.0.0'),
           StringStruct('InternalName', 'RCS-2000接口调用工具'),
           StringStruct('OriginalFilename', 'RCS-2000接口调用工具.exe'),
           StringStruct('ProductName', 'RCS-2000接口调用工具'),
-          StringStruct('ProductVersion', 'V1.0')
+          StringStruct('ProductVersion', 'V1.1')
         ]
       )
     ]),

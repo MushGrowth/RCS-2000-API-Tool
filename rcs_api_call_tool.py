@@ -12,9 +12,13 @@ from tkinter import ttk  # 导入Tkinter高级控件
 import requests  # 导入HTTP请求库
 from openpyxl import Workbook, load_workbook  # 导入Excel读写库
 
+from callback_server import CallbackServer, ResponseProfile, V3_CALLBACK_PATHS, V4_CALLBACK_PATHS
+from interface_catalog import load_interfaces
+from rcs_http import build_v4_headers, compact_json, post_json, sign_v4_request
+
 
 APP_NAME = "RCS-2000接口调用工具"  # 定义软件名称
-APP_VERSION = "V1.0"  # 定义软件版本
+APP_VERSION = "V1.1"  # 定义软件版本
 APP_TITLE = f"{APP_NAME} {APP_VERSION}"  # 定义软件窗口标题
 CONFIG_FILE_NAME = "RCS-2000接口调用工具配置.json"  # 定义配置文件名
 LEGACY_CONFIG_FILE_NAME = "RCS接口调用工具配置.json"  # 定义旧版配置文件名
@@ -23,6 +27,16 @@ DEFAULT_VERSION = "RCS 3.x"  # 定义默认RCS版本
 VERSION_3 = "RCS 3.x"  # 定义3.x版本显示文本
 VERSION_4 = "RCS 4.x"  # 定义4.x版本显示文本
 TIMEOUT_SECONDS = 30  # 定义接口超时时间
+NETWORK_SETTINGS = {
+    "connect_timeout": 30.0,
+    "read_timeout": 60.0,
+    "verify_tls": True,
+    "app_key": "",
+    "app_secret": "",
+    "source": "",
+    "api_version": "v1.0",
+    "algorithm": "HMAC-SHA256",
+}
 USED_REQ_CODES = set()  # 记录3.x本次运行已使用的reqCode
 USED_4X_REQUEST_IDS = set()  # 记录4.x本次运行已使用的请求头ID
 USER_MANUAL_TEXT = """RCS-2000接口调用工具 V1.0 用户使用说明
@@ -373,7 +387,7 @@ def build_4x_request_id() -> str:  # 定义4.x请求头ID生成函数
 
 
 def get_presets(version: str) -> list[dict]:  # 定义按版本获取预置接口函数
-    return PRESET_APIS_4X if version == VERSION_4 else PRESET_APIS_3X  # 返回对应版本预置接口
+    return load_interfaces(version)  # 从版本化JSON配置加载接口
 
 
 def get_base_url(version: str, ip: str, port: str) -> str:  # 定义生成基础URL函数
@@ -414,24 +428,53 @@ def validate_row(row: dict, field_configs: list[dict]) -> str:  # 定义行数�
         requirement = config.get("requirement", "选填")  # 获取字段要求
         if is_strict_required(requirement) and not row["values"].get(field_name):  # 判断必填为空
             return f"字段{field_name}为必填，当前为空"  # 返回错误
+    values = row["values"]
+    if values.get("method") == "APPLY_RESOURCE":
+        for field_name in ("srcCode", "syncMode"):
+            if not values.get(field_name):
+                return f"字段{field_name}在交管区申请时为必填"
     return ""  # 返回无错误
 
 
 def post_api_request(version: str, api_url: str, row: dict) -> tuple[bool, str, dict, str]:  # 定义接口调用函数
     payload = build_payload_values(row["values"])  # 构造业务报文
-    headers = {}  # 初始化请求头
+    headers = {"Content-Type": "application/json;charset=UTF-8"}  # 初始化请求头
+    signing_source = ""
     if version == VERSION_3:  # 判断3.x
         payload = {"reqCode": build_req_code(), **payload}  # 3.x自动加入reqCode
     else:  # 处理4.x
-        headers["X-lr-request-id"] = build_4x_request_id()  # 4.x加入唯一请求头
+        headers = build_v4_headers(
+            build_4x_request_id(),
+            NETWORK_SETTINGS["app_key"],
+            NETWORK_SETTINGS["source"],
+            NETWORK_SETTINGS["api_version"],
+            algorithm=NETWORK_SETTINGS["algorithm"],
+        )
+        if NETWORK_SETTINGS["app_key"] and NETWORK_SETTINGS["app_secret"]:
+            api_url, signing_source = sign_v4_request(
+                "POST", api_url, headers, compact_json(payload), NETWORK_SETTINGS["app_secret"]
+            )
     response_text = ""  # 初始化响应文本
     try:  # 捕获请求异常
-        response = requests.post(api_url, json=payload, headers=headers, timeout=TIMEOUT_SECONDS)  # 发起POST请求
-        response_text = response.text.strip()  # 获取响应文本
+        response = post_json(
+            api_url,
+            payload,
+            headers,
+            NETWORK_SETTINGS["connect_timeout"],
+            NETWORK_SETTINGS["read_timeout"],
+            NETWORK_SETTINGS["verify_tls"],
+        )
+        response_body = response.text.strip()  # 获取响应正文
+        response_text = response_body
         response.raise_for_status()  # 检查HTTP状态
         response_json = response.json()  # 解析JSON响应
+        response_text = (
+            f"HTTP {response.status_code} {response.reason}\n"
+            + "\n".join(f"{key}: {value}" for key, value in response.headers.items())
+            + f"\n\n{response_body}"
+        )
     except requests.RequestException as error:  # 捕获请求异常
-        return False, str(error), payload, response_text  # 返回失败
+        return False, f"{error.__class__.__name__}: {error}", payload, response_text  # 返回失败
     except json.JSONDecodeError as error:  # 捕获JSON解析异常
         return False, f"响应不是合法JSON：{error}，原始响应：{response_text}", payload, response_text  # 返回失败
     if is_success_response(response_json):  # 判断是否成功
@@ -458,6 +501,7 @@ class RcsApiCallTool:  # 定义主界面类
         self.is_paused = False  # 初始化暂停状态
         self.pause_event = threading.Event()  # 创建暂停事件
         self.stop_event = threading.Event()  # 创建停止事件
+        self.callback_server = None  # 本地回调模拟服务
         self.pause_event.set()  # 默认允许执行
         self.configure_styles()  # 配置界面样式
         self.build_ui()  # 构建界面
@@ -495,6 +539,8 @@ class RcsApiCallTool:  # 定义主界面类
         top_frame = Frame(self.root)  # 创建顶部区域
         top_frame.pack(fill=X, padx=10, pady=6)  # 布局顶部区域
         Button(top_frame, text="使用说明", command=self.show_user_manual, width=12).pack(side=RIGHT)  # 创建右上角使用说明按钮
+        Button(top_frame, text="回调模拟", command=self.show_callback_server, width=12).pack(side=RIGHT, padx=6)
+        Button(top_frame, text="网络/签名", command=self.show_network_settings, width=12).pack(side=RIGHT)
         Label(top_frame, text="RCS版本：").pack(side=LEFT)  # 创建版本标签
         self.version_combo = ttk.Combobox(top_frame, textvariable=self.version_var, values=[VERSION_3, VERSION_4], state="readonly", width=12)  # 创建版本下拉框
         self.version_combo.pack(side=LEFT, padx=(4, 12))  # 布局版本下拉框
@@ -588,6 +634,125 @@ class RcsApiCallTool:  # 定义主界面类
         self.failure_detail_text = scrolledtext.ScrolledText(failure_content, wrap="word", width=55)  # 创建失败明细框
         self.failure_detail_text.pack(side=RIGHT, fill=BOTH, expand=True, padx=(8, 0))  # 布局失败明细框
 
+    def show_network_settings(self) -> None:
+        window = Toplevel(self.root)
+        window.title("网络与 V4 签名设置")
+        window.geometry("540x410")
+        values = {}
+        fields = [
+            ("连接超时（秒）", "connect_timeout", False),
+            ("读取超时（秒）", "read_timeout", False),
+            ("App Key", "app_key", False),
+            ("App Secret", "app_secret", True),
+            ("请求来源", "source", False),
+            ("API 版本", "api_version", False),
+        ]
+        for row_index, (label, key, secret) in enumerate(fields):
+            Label(window, text=label).grid(row=row_index, column=0, sticky="e", padx=10, pady=7)
+            variable = StringVar(value=str(NETWORK_SETTINGS[key]))
+            values[key] = variable
+            Entry(window, textvariable=variable, show="*" if secret else "").grid(
+                row=row_index, column=1, sticky="ew", padx=10, pady=7
+            )
+        algorithm_var = StringVar(value=NETWORK_SETTINGS["algorithm"])
+        Label(window, text="签名算法").grid(row=6, column=0, sticky="e", padx=10, pady=7)
+        ttk.Combobox(
+            window,
+            textvariable=algorithm_var,
+            values=["HMAC-SHA256", "HMAC-SHA512"],
+            state="readonly",
+        ).grid(row=6, column=1, sticky="ew", padx=10, pady=7)
+        verify_var = BooleanVar(value=NETWORK_SETTINGS["verify_tls"])
+        Checkbutton(window, text="校验 HTTPS 证书", variable=verify_var).grid(
+            row=7, column=1, sticky="w", padx=10, pady=7
+        )
+        window.columnconfigure(1, weight=1)
+
+        def save():
+            try:
+                NETWORK_SETTINGS["connect_timeout"] = max(0.1, float(values["connect_timeout"].get()))
+                NETWORK_SETTINGS["read_timeout"] = max(0.1, float(values["read_timeout"].get()))
+            except ValueError:
+                messagebox.showerror("输入错误", "超时时间必须是数字", parent=window)
+                return
+            for key in ("app_key", "app_secret", "source", "api_version"):
+                NETWORK_SETTINGS[key] = values[key].get().strip()
+            NETWORK_SETTINGS["algorithm"] = algorithm_var.get()
+            NETWORK_SETTINGS["verify_tls"] = verify_var.get()
+            window.destroy()
+
+        Button(window, text="保存", command=save, width=14).grid(row=8, column=1, sticky="e", padx=10, pady=15)
+
+    def show_callback_server(self) -> None:
+        window = Toplevel(self.root)
+        window.title("本地 HTTP 回调模拟服务")
+        window.geometry("1040x680")
+        controls = Frame(window)
+        controls.pack(fill=X, padx=10, pady=8)
+        host_var = StringVar(value="0.0.0.0")
+        port_var = StringVar(value="8090")
+        mode_var = StringVar(value="成功")
+        delay_var = StringVar(value="0")
+        Label(controls, text="监听地址").pack(side=LEFT)
+        Entry(controls, textvariable=host_var, width=13).pack(side=LEFT, padx=5)
+        Label(controls, text="端口").pack(side=LEFT)
+        Entry(controls, textvariable=port_var, width=7).pack(side=LEFT, padx=5)
+        Label(controls, text="响应").pack(side=LEFT)
+        ttk.Combobox(controls, textvariable=mode_var, values=["成功", "失败"], state="readonly", width=7).pack(side=LEFT, padx=5)
+        Label(controls, text="延时(秒)").pack(side=LEFT)
+        Entry(controls, textvariable=delay_var, width=7).pack(side=LEFT, padx=5)
+        status_var = StringVar(value="未启动")
+        Label(controls, textvariable=status_var).pack(side=RIGHT)
+        tree = ttk.Treeview(window, columns=("time", "name", "task", "path"), show="headings", height=12)
+        for key, title, width in (("time", "时间", 150), ("name", "回调", 180), ("task", "任务号", 180), ("path", "路径", 440)):
+            tree.heading(key, text=title)
+            tree.column(key, width=width, anchor="w")
+        tree.pack(fill=X, padx=10, pady=4)
+        detail = scrolledtext.ScrolledText(window, wrap="word")
+        detail.pack(fill=BOTH, expand=True, padx=10, pady=6)
+        record_map = {}
+
+        def display_record(record):
+            item = tree.insert("", END, values=(record["time"], record["name"], record["task_id"], record["path"]))
+            record_map[item] = record
+
+        def on_record(record):
+            self.root.after(0, display_record, record)
+
+        def start():
+            try:
+                delay = max(0, float(delay_var.get()))
+                port = int(port_var.get())
+                body = {"code": "0", "message": "成功"} if mode_var.get() == "成功" else {"code": "1", "message": "模拟失败"}
+                status = 200 if mode_var.get() == "成功" else 500
+                if self.callback_server:
+                    self.callback_server.stop()
+                self.callback_server = CallbackServer(host_var.get().strip(), port, on_record)
+                self.callback_server.profile = ResponseProfile(status, delay, body)
+                self.callback_server.start()
+                status_var.set(f"运行中：http://127.0.0.1:{self.callback_server.port}")
+            except (ValueError, OSError) as error:
+                messagebox.showerror("启动失败", str(error), parent=window)
+
+        def stop():
+            if self.callback_server:
+                self.callback_server.stop()
+                self.callback_server = None
+            status_var.set("已停止")
+
+        def selected(_event=None):
+            selection = tree.selection()
+            if selection:
+                detail.delete("1.0", END)
+                detail.insert(END, json.dumps(record_map[selection[0]], ensure_ascii=False, indent=2))
+
+        tree.bind("<<TreeviewSelect>>", selected)
+        Button(controls, text="启动", command=start).pack(side=LEFT, padx=6)
+        Button(controls, text="停止", command=stop).pack(side=LEFT)
+        paths = {**V3_CALLBACK_PATHS, **V4_CALLBACK_PATHS}
+        detail.insert(END, "支持路径（也接受任意自定义 POST 路径）：\n" + "\n".join(f"{path}  {name}" for path, name in paths.items()))
+        window.protocol("WM_DELETE_WINDOW", window.destroy)
+
     def show_user_manual(self) -> None:  # 定义显示用户使用说明窗口的函数
         manual_window = Toplevel(self.root)  # 创建说明弹窗
         manual_window.title("用户使用说明")  # 设置说明窗口标题
@@ -604,7 +769,10 @@ class RcsApiCallTool:  # 定义主界面类
         ip_text = self.ip_var.get().strip() or DEFAULT_IP  # 获取IP
         port_text = self.port_var.get().strip() or ("443" if self.version_var.get() == VERSION_4 else "8182")  # 获取端口
         suffix_text = self.suffix_var.get().strip().lstrip("/")  # 获取后缀
-        self.api_url_var.set(get_base_url(self.version_var.get(), ip_text, port_text) + suffix_text)  # 设置完整URL
+        if self.version_var.get() == VERSION_4 and suffix_text.startswith("wcs/"):
+            self.api_url_var.set(f"https://{ip_text}:{port_text}/{suffix_text}")
+        else:
+            self.api_url_var.set(get_base_url(self.version_var.get(), ip_text, port_text) + suffix_text)  # 设置完整URL
 
     def apply_version_defaults(self) -> None:  # 定义应用版本默认值函数
         self.port_var.set("443" if self.version_var.get() == VERSION_4 else "8182")  # 设置默认端口
@@ -1103,6 +1271,8 @@ class RcsApiCallTool:  # 定义主界面类
 
     def on_close(self) -> None:  # 定义关闭窗口函数
         self.save_config()  # 保存配置
+        if self.callback_server:
+            self.callback_server.stop()
         if self.is_running:  # 判断是否运行中
             self.stop_event.set()  # 设置停止
             self.pause_event.set()  # 唤醒暂停

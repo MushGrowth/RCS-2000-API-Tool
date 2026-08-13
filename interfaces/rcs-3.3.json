@@ -1,0 +1,879 @@
+{
+  "schema_version": 1,
+  "rcs_version": "3.3",
+  "interfaces": [
+    {
+      "display_name": "生成任务单",
+      "suffix": "genAgvSchedulingTask",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "taskTyp",
+          "requirement": "必填"
+        },
+        {
+          "name": "wbCode",
+          "requirement": "条件必填-与positionCodePath二选一"
+        },
+        {
+          "name": "positionCodePath[0].positionCode",
+          "requirement": "条件必填"
+        },
+        {
+          "name": "positionCodePath[0].type",
+          "requirement": "条件必填"
+        },
+        {
+          "name": "reqTime",
+          "requirement": "选填"
+        },
+        {
+          "name": "clientCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "tokenCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "podCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "podDir",
+          "requirement": "选填"
+        },
+        {
+          "name": "podTyp",
+          "requirement": "选填"
+        },
+        {
+          "name": "materialLot",
+          "requirement": "选填"
+        },
+        {
+          "name": "materialType",
+          "requirement": "选填-移载机器人专用"
+        },
+        {
+          "name": "priority",
+          "requirement": "选填"
+        },
+        {
+          "name": "taskCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "agvCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "groupId",
+          "requirement": "选填"
+        },
+        {
+          "name": "agvTyp",
+          "requirement": "选填"
+        },
+        {
+          "name": "positionSelStrategy",
+          "requirement": "选填"
+        },
+        {
+          "name": "data",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "继续执行任务",
+      "suffix": "continueTask",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "wbCode",
+          "requirement": "条件必填-四选一"
+        },
+        {
+          "name": "podCode",
+          "requirement": "条件必填-四选一"
+        },
+        {
+          "name": "agvCode",
+          "requirement": "条件必填-四选一"
+        },
+        {
+          "name": "taskCode",
+          "requirement": "条件必填-四选一"
+        },
+        {
+          "name": "reqTime",
+          "requirement": "选填"
+        },
+        {
+          "name": "clientCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "tokenCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "taskSeq",
+          "requirement": "选填"
+        },
+        {
+          "name": "nextPositionCode.positionCode",
+          "requirement": "选填-外部设置时需要"
+        },
+        {
+          "name": "nextPositionCode.type",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "取消任务",
+      "suffix": "cancelTask",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "agvCode",
+          "requirement": "条件必填-与taskCode二选一"
+        },
+        {
+          "name": "taskCode",
+          "requirement": "条件必填-与agvCode二选一"
+        },
+        {
+          "name": "reqTime",
+          "requirement": "选填"
+        },
+        {
+          "name": "clientCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "tokenCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "forceCancel",
+          "requirement": "选填-默认为0"
+        },
+        {
+          "name": "matterArea",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "任务优先级设置",
+      "suffix": "setTaskPriority",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "priorities[0].taskCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "priorities[0].priority",
+          "requirement": "必填"
+        },
+        {
+          "name": "reqTime",
+          "requirement": "选填"
+        },
+        {
+          "name": "clientCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "tokenCode",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "货架与位置绑定、解绑",
+      "suffix": "bindPodAndBerth",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "podCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "positionCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "indBind",
+          "requirement": "必填-1绑定/0解绑"
+        },
+        {
+          "name": "reqTime",
+          "requirement": "选填"
+        },
+        {
+          "name": "clientCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "tokenCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "podDir",
+          "requirement": "选填"
+        },
+        {
+          "name": "characterValue",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "货架与物料绑定、解绑",
+      "suffix": "bindPodAndMat",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "podCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "materialLot",
+          "requirement": "必填"
+        },
+        {
+          "name": "indBind",
+          "requirement": "必填-1绑定/0解绑"
+        },
+        {
+          "name": "reqTime",
+          "requirement": "选填"
+        },
+        {
+          "name": "clientCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "tokenCode",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "位置禁用与启用",
+      "suffix": "lockPosition",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "positionCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "indBind",
+          "requirement": "必填-1启用/0禁用"
+        },
+        {
+          "name": "reqTime",
+          "requirement": "选填"
+        },
+        {
+          "name": "clientCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "tokenCode",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "地图位置信息同步",
+      "suffix": "syncMapDatas",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "mapShortName",
+          "requirement": "必填"
+        },
+        {
+          "name": "reqTime",
+          "requirement": "选填"
+        },
+        {
+          "name": "clientCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "tokenCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "mapDataCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "dataTyp",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "查询货架储位与物料批次关系",
+      "suffix": "queryPodBerthAndMat",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "reqTime",
+          "requirement": "选填"
+        },
+        {
+          "name": "clientCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "tokenCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "podCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "materialLot",
+          "requirement": "选填"
+        },
+        {
+          "name": "positionCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "areaCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "mapShortName",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "仓位禁用与启用",
+      "suffix": "blockStgBin",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "data[0].stgBinCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "data[0].action",
+          "requirement": "必填-0启用/1禁用"
+        },
+        {
+          "name": "reqTime",
+          "requirement": "选填"
+        },
+        {
+          "name": "clientCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "tokenCode",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "容器与仓位绑定、解绑",
+      "suffix": "bindCtnrAndBin",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "ctnrTyp",
+          "requirement": "必填"
+        },
+        {
+          "name": "indBind",
+          "requirement": "必填-1绑定/0解绑"
+        },
+        {
+          "name": "reqTime",
+          "requirement": "选填"
+        },
+        {
+          "name": "clientCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "tokenCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "ctnrCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "stgBinCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "binName",
+          "requirement": "选填"
+        },
+        {
+          "name": "characterValue",
+          "requirement": "选填"
+        },
+        {
+          "name": "positionCode",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "查询任务状态",
+      "suffix": "queryTaskStatus",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "taskCodes",
+          "requirement": "条件必填-与agvCode二选一"
+        },
+        {
+          "name": "agvCode",
+          "requirement": "条件必填-与taskCodes二选一"
+        },
+        {
+          "name": "reqTime",
+          "requirement": "选填"
+        },
+        {
+          "name": "clientCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "tokenCode",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "查询 AGV 状态",
+      "suffix": "queryAgvStatus",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "mapCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "reqTime",
+          "requirement": "选填"
+        },
+        {
+          "name": "clientCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "tokenCode",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "停止 AGV",
+      "suffix": "stopRobot",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "mapShortName",
+          "requirement": "条件必填-robotCount=-1时必填"
+        },
+        {
+          "name": "reqTime",
+          "requirement": "选填"
+        },
+        {
+          "name": "clientCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "tokenCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "robotCount",
+          "requirement": "选填-填-1时代表全部"
+        },
+        {
+          "name": "robots",
+          "requirement": "选填-具体车号列表"
+        }
+      ]
+    },
+    {
+      "display_name": "恢复 AGV",
+      "suffix": "resumeRobot",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "mapShortName",
+          "requirement": "条件必填-robotCount=-1时必填"
+        },
+        {
+          "name": "reqTime",
+          "requirement": "选填"
+        },
+        {
+          "name": "clientCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "tokenCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "robotCount",
+          "requirement": "选填-填-1时代表全部"
+        },
+        {
+          "name": "robots",
+          "requirement": "选填-具体车号列表"
+        }
+      ]
+    },
+    {
+      "display_name": "区域清空/释放",
+      "suffix": "blockArea",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "matterArea",
+          "requirement": "必填"
+        },
+        {
+          "name": "indBind",
+          "requirement": "必填-1封锁/0解封"
+        },
+        {
+          "name": "targetArea",
+          "requirement": "条件必填-controlMod=2时必填"
+        },
+        {
+          "name": "reqTime",
+          "requirement": "选填"
+        },
+        {
+          "name": "clientCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "tokenCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "pause",
+          "requirement": "选填-0不暂停/1暂停"
+        },
+        {
+          "name": "controlMod",
+          "requirement": "选填"
+        },
+        {
+          "name": "noticeThird",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "预调度对外接口",
+      "suffix": "genPreScheduleTask",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "positionCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "nextTask",
+          "requirement": "必填"
+        },
+        {
+          "name": "agvTyp",
+          "requirement": "必填"
+        },
+        {
+          "name": "reqTime",
+          "requirement": "选填"
+        },
+        {
+          "name": "clientCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "tokenCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "priority",
+          "requirement": "选填"
+        },
+        {
+          "name": "useableLayers",
+          "requirement": "选填-CTU用"
+        },
+        {
+          "name": "cacheCount",
+          "requirement": "选填-CTU用"
+        },
+        {
+          "name": "update",
+          "requirement": "选填-0不更新/1更新"
+        }
+      ]
+    },
+    {
+      "display_name": "清空巷道",
+      "suffix": "clearRoadWay",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "reqTime",
+          "requirement": "必填-此接口特殊"
+        },
+        {
+          "name": "clientCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "tokenCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "roadWayCode",
+          "requirement": "必填"
+        }
+      ]
+    },
+    {
+      "display_name": "料箱出库TPS（CTU+分拨墙）",
+      "suffix": "getOutPod",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "reqTime",
+          "requirement": "必填"
+        },
+        {
+          "name": "clientCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "tokenCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "taskTyp",
+          "requirement": "必填-传1"
+        },
+        {
+          "name": "data[0].taskCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "data[0].ctnrCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "data[0].wbCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "data[0].binCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "data[0].agvTyp",
+          "requirement": "选填"
+        },
+        {
+          "name": "data[0].priority",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "料箱回库TPS（CTU+分拨墙）",
+      "suffix": "returnPod",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "reqTime",
+          "requirement": "必填"
+        },
+        {
+          "name": "clientCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "tokenCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "taskCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "taskTyp",
+          "requirement": "必填-传5"
+        },
+        {
+          "name": "ctnrCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "binCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "srcBinCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "wbCode",
+          "requirement": "条件必填-初始化入库时必填"
+        },
+        {
+          "name": "agvTyp",
+          "requirement": "选填"
+        },
+        {
+          "name": "returnPodStrategy",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "料箱顺序出库（CTU）",
+      "suffix": "genCtuGroupTaskBatch",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "taskTyp",
+          "requirement": "必填-默认B10"
+        },
+        {
+          "name": "seqTyp",
+          "requirement": "必填"
+        },
+        {
+          "name": "taskGroups[0].taskCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "taskGroups[0].ctnrCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "taskGroups[0].ctnrTyp",
+          "requirement": "必填"
+        },
+        {
+          "name": "taskGroups[0].wbCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "taskGroups[0].wbTyp",
+          "requirement": "必填"
+        },
+        {
+          "name": "taskGroups[0].groupId",
+          "requirement": "必填"
+        },
+        {
+          "name": "taskGroups[0].sequence",
+          "requirement": "必填"
+        },
+        {
+          "name": "reqTime",
+          "requirement": "选填"
+        },
+        {
+          "name": "clientCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "tokenCode",
+          "requirement": "选填"
+        }
+      ]
+    },
+    {
+      "display_name": "料箱取放回调（CTU）",
+      "suffix": "boxApplyPass",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "reqTime",
+          "requirement": "必填"
+        },
+        {
+          "name": "clientCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "tokenCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "taskCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "type",
+          "requirement": "必填-1取通过/2放通过"
+        }
+      ]
+    },
+    {
+      "display_name": "物料类型与位置绑定、解绑（移载机器人协议）",
+      "suffix": "bindMaterialTypCodeAndBerth",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "materialType",
+          "requirement": "条件必填-绑定时必填,解绑可不填"
+        },
+        {
+          "name": "positionCode",
+          "requirement": "必填"
+        },
+        {
+          "name": "indBind",
+          "requirement": "必填-1绑定/0解绑"
+        },
+        {
+          "name": "reqTime",
+          "requirement": "选填"
+        },
+        {
+          "name": "clientCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "tokenCode",
+          "requirement": "选填"
+        },
+        {
+          "name": "ctnrCode",
+          "requirement": "选填"
+        }
+      ]
+    }
+  ]
+}
